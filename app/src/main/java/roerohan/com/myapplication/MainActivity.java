@@ -1,7 +1,6 @@
 package roerohan.com.myapplication;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -12,12 +11,12 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -25,8 +24,8 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button button;
-    private TextView textView;
+    private Button btnRequestLoc;
+    private TextView txtCoordinates;
     private LocationManager locationManager;
     private LocationListener locationListener;
 
@@ -37,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button button2 = (Button) findViewById(R.id.button2) ;
-        button2.setOnClickListener(new View.OnClickListener() {
+        Button btnCallForHelp = findViewById(R.id.btnCallForHelp) ;
+        btnCallForHelp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sendNotification(v);
@@ -46,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Attempt to launch second activity
-        Button secondActivityBtn = (Button) findViewById(R.id.secondActivityBtn);
-        secondActivityBtn.setOnClickListener(new View.OnClickListener() {
+        final Button btnContactInfo = findViewById(R.id.btnContactInfo);
+        btnContactInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent startIntent = new Intent(getApplicationContext(), SecondActivity.class);
@@ -58,29 +57,57 @@ public class MainActivity extends AppCompatActivity {
 
         //Attempt to launch an activity outside our app
 
-        Button googleBtn = (Button) findViewById(R.id.googleBtn);
-        googleBtn.setOnClickListener(new View.OnClickListener() {
+        final Button btnOpenMap = findViewById(R.id.btnOpenMap);
+        btnOpenMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String google = "https://www.google.co.in/maps/place/Bengaluru,+Karnataka/@12.9538477,77.3507442,10z/data=!3m1!4b1!4m5!3m4!1s0x3bae1670c9b44e6d:0xf8dfc3e8517e4fe0!8m2!3d12.9715987!4d77.5945627";
-                Uri webadress = Uri.parse(google);
+                Uri webAddress = Uri.parse(google);
 
 
-                Intent gotoGoogle = new Intent(Intent.ACTION_VIEW, webadress);
+                Intent gotoGoogle = new Intent(Intent.ACTION_VIEW, webAddress);
                 if (gotoGoogle.resolveActivity(getPackageManager()) != null) {
                     startActivity(gotoGoogle);
                 }
             }
         });
 
-        button = (Button) findViewById(R.id.button);
-        textView = (TextView) findViewById(R.id.textView);
+        final Button btnTestNotification = findViewById(R.id.btnTestNotification);
+        btnRequestLoc = findViewById(R.id.btnRequestLoc);
+        txtCoordinates = findViewById(R.id.txtCoordinates);
+
+        final Button btnViewMore = findViewById(R.id.btnMoreOptions);
+        btnViewMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (btnOpenMap.getVisibility() == View.INVISIBLE) {
+                    //Options are currently hidden; this makes them visible
+                    btnOpenMap.setVisibility(View.VISIBLE);
+                    btnRequestLoc.setVisibility(View.VISIBLE);
+                    btnContactInfo.setVisibility(View.VISIBLE);
+                    txtCoordinates.setVisibility(View.VISIBLE);
+                    btnTestNotification.setVisibility(View.VISIBLE);
+
+                    btnViewMore.setText("Hide More Options");
+                } else {
+                    //Options are currently showing; this makes them invisible
+                    btnOpenMap.setVisibility(View.INVISIBLE);
+                    btnRequestLoc.setVisibility(View.INVISIBLE);
+                    btnContactInfo.setVisibility(View.INVISIBLE);
+                    txtCoordinates.setVisibility(View.INVISIBLE);
+                    btnTestNotification.setVisibility(View.INVISIBLE);
+
+                    btnViewMore.setText("View More Options");
+                }
+            }
+        });
+
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                textView.append("\n " + location.getLongitude() + " " + location.getLatitude());
-    //            textView.setText(textView.getText() + "\n " + location.getLongitude() + ", " + location.getLatitude());
+                txtCoordinates.append("\n " + location.getLongitude() + " " + location.getLatitude());
+    //            txtCoordinates.setText(txtCoordinates.getText() + "\n " + location.getLongitude() + ", " + location.getLatitude());
             }
 
             @Override
@@ -114,17 +141,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permission, int[] grantResults) {
-        switch (requestCode) {
-            case 10:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    configureButton();
-                return;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permission, @NonNull int[] grantResults) {
+        if (requestCode == 10) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                configureButton();
         }
     }
 
     private void configureButton() {
-        button.setOnClickListener(new View.OnClickListener() {
+        btnRequestLoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(MainActivity.this, "Please Wait", Toast.LENGTH_SHORT).show();
