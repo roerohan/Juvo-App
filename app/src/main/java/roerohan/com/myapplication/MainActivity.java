@@ -41,12 +41,9 @@ public class MainActivity extends AppCompatActivity {
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Enter code for sending notification.
-
+                sendNotification(v);
             }
         });
-
-
 
         //Attempt to launch second activity
         Button secondActivityBtn = (Button) findViewById(R.id.secondActivityBtn);
@@ -150,6 +147,11 @@ public class MainActivity extends AppCompatActivity {
                         .setContentTitle("My notification")
                         .setContentText("You're in an unsafe area");
 
+        // Set Vribrate start and end time.
+        // The first index of array is number of milliseconds to wait before turning the vibrator on
+        // and the second index is number of millisecond to vibrate before turning it off
+        long[] v = {500,1000};
+        mBuilder.setVibrate(v);
 
         // Gets an instance of the NotificationManager service//
 
@@ -164,8 +166,5 @@ public class MainActivity extends AppCompatActivity {
         // rather than create a new one. In this example, the notification’s ID is 001//
 
         mNotificationManager.notify(001, mBuilder.build());
-
-        long[] v = {500,1000};
-        mBuilder.setVibrate(v);
     }
 }
